@@ -17,8 +17,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-ACCOUNT = os.environ.get("GOG_ACCOUNT", "89479100+tiramitree@users.noreply.github.com")
-STATE = Path(os.environ.get("GMAIL_WATCH_STATE", "/home/tiramitree/.clawdbot/gmail-watch-state.json"))
+ACCOUNT = os.environ.get("GOG_ACCOUNT", "").strip()
+STATE = Path(os.environ.get("GMAIL_WATCH_STATE", str(Path.home() / ".clawdbot" / "gmail-watch-state.json")))
 
 URGENT_FROM_DOMAINS = {
     "chase.com",
@@ -56,6 +56,8 @@ def run(cmd):
 
 
 def gog_search(query, maxn=50):
+    if not ACCOUNT:
+        raise RuntimeError("GOG_ACCOUNT is required")
     out = run(["gog", "gmail", "messages", "search", query, "--max", str(maxn), "--json", "--account", ACCOUNT])
     data = json.loads(out)
     msgs = data.get("messages")

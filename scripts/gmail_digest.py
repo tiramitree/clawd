@@ -15,7 +15,7 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 
-ACCOUNT = os.environ.get("GOG_ACCOUNT", "89479100+tiramitree@users.noreply.github.com")
+ACCOUNT = os.environ.get("GOG_ACCOUNT", "").strip()
 
 # --- Heuristics (tune as needed) ---
 URGENT_FROM_DOMAINS = {
@@ -48,9 +48,7 @@ URGENT_SUBJECT_PATTERNS = [
 ]
 
 PROMO_LABELS = {"CATEGORY_PROMOTIONS", "CATEGORY_SOCIAL"}
-NOISE_SENDERS = {
-    "notify@buildinglink.com": "BuildingLink/SoMA",
-}
+NOISE_SENDERS = {}
 
 
 def run(cmd):
@@ -61,6 +59,8 @@ def run(cmd):
 
 
 def gog_search(query, maxn=80):
+    if not ACCOUNT:
+        raise RuntimeError("GOG_ACCOUNT is required")
     out = run(["gog", "gmail", "messages", "search", query, "--max", str(maxn), "--json", "--account", ACCOUNT])
     data = json.loads(out)
     return data.get("messages", [])
